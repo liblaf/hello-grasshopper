@@ -1,0 +1,109 @@
+% !TeX root = ../main.tex
+
+% protected override void SolveInstance(IGH_DataAccess DA)
+% {
+%     DA.GetDataTree(name: "Curves", tree: out GH_Structure<GH_Curve> curves);
+%     GH_Structure<GH_Curve> result = new GH_Structure<GH_Curve>();
+%     foreach (GH_Path path in curves.Paths)
+%     {
+%         for (int i = 0; i < curves[path].Count; ++i)
+%         {
+%             Curve curve = curves[path][i].Value;
+%             List<double> parameters = new List<double>();
+%             foreach (GH_Curve gh_cutter in curves.AllData(skipNulls: true))
+%             {
+%                 Curve cutter = gh_cutter.Value;
+%                 if (cutter == curve)
+%                     continue;
+%                 CurveIntersections intersections = Intersection.CurveCurve(
+%                     curve,
+%                     cutter,
+%                     tolerance: 0.0,
+%                     overlapTolerance: 0.0
+%                 );
+%                 parameters.AddRange(
+%                     intersections.Select(intersection => intersection.ParameterA)
+%                 );
+%             }
+%             parameters.Sort();
+%             parameters = parameters
+%                 .Prepend(curve.Domain.Min)
+%                 .Append(curve.Domain.Max)
+%                 .ToList();
+%             List<GH_Curve> segments = new List<GH_Curve>();
+%             for (int j = 0; j + 1 < parameters.Count; ++j)
+%             {
+%                 double t0 = parameters[j];
+%                 double t1 = parameters[j + 1];
+%                 segments.Add(new GH_Curve(curve.Trim(t0, t1)));
+%             }
+%             result.AppendRange(data: segments, path: path.AppendElement(i));
+%         }
+%     }
+%     DA.SetDataTree(paramIndex: 0, tree: result);
+% }
+
+% Grasshopper 中的曲线打断工具可以实现曲线的分割, 但存在一些问题:
+% Grasshopper 中的曲线打断工具存在一些问题:
+% - 无法处理树形结构存储的曲线
+% - 丢失曲线的属性信息
+% 因此, 我们实现了一个新的曲线打断插件, 核心代码如上.
+
+% 假设你是一名资深的参数化软件研究员, 你正在撰写一篇关于 Rhino 和 Grasshopper 的实际应用的论文. 现在, 请根据上述代码和信息, 撰写曲线打断一小节.
+
+\section{曲线打断}
+
+\subsection{曲线打断简介}
+
+曲线打断是参数化设计中常用的一种技术, 可以通过在曲线上添加断点将其分割成多段.
+Grasshopper 是 Rhino 软件中一款强大的可视化编程工具, 可用于实现参数化设计中的曲线打断操作.
+本节将介绍曲线打断的原理及其在参数化设计中的应用.
+
+在参数化设计中, 曲线打断是一个常见的操作, 可以让设计师对曲线进行细粒度的控制.
+通过曲线打断, 设计师可以将曲线划分成多个片段, 并对其进行个别处理.
+这种操作可以用于构建复杂的几何形状, 进行曲线上特定区域的编辑, 以及生成符合设计要求的曲线样式.
+
+通过 Grasshopper 的强大功能, 曲线打断可以快速实现.
+设计师可以使用 Grasshopper 的曲线工具创建自定义的曲线, 然后使用打断工具将其分割成多个片段.
+打断工具允许设计师在曲线上添加断点, 并根据需要调整断点的位置和数量.
+设计师还可以使用Grasshopper的其他组件对打断后的曲线片段进行进一步的操作和修改, 以满足设计的要求.
+
+曲线打断的应用广泛存在于各个设计领域.
+在建筑设计中, 曲线打断可以用于生成具有动态感的曲线体量, 提升建筑的空间层次感.
+在产品设计中, 曲线打断可以用于创建独特的产品造型, 增强产品的美观性和功能性.
+在景观设计中, 曲线打断可以用于创造流畅的路径线路, 使景观布局更加灵活多样.
+
+\subsection{基于树形数据的曲线打断方法}
+
+曲线打断方法的有效实现对于参数化软件的应用具有重要意义.
+尽管在 Grasshopper 中提供了曲线打断工具, 但该工具存在一些局限性, 例如无法处理树形结构存储的曲线以及丢失曲线的属性信息.
+为了解决这些问题, 我们在本研究中提出了一个新的曲线打断插件.
+
+\inputcode[
+  label          = lst:split-curves-core,
+  minted options = {
+      firstline = 45,
+      lastline  = 86,
+    },
+][SplitCurves.cs]{csharp}{../csharp/HelloGrasshopper/SplitCurves.cs}
+
+我们的曲线打断插件的核心代码如 \cref{lst:split-curves-core} 所示, 完整代码参见 \cref{lst:split-curves}.
+首先, 我们通过输入参数 \mintinline{csharp}{Curves} 获取一个曲线树结构, 该结构以路径为单位存储了一组曲线.
+然后, 我们遍历树结构中的所有路径, 并逐个处理其中的曲线.
+
+对于每个曲线, 我们首先创建一个空的曲线结果集合, 用于存储被分割后的曲线段.
+然后, 我们针对当前曲线和其他曲线进行相交检测.
+如果两条曲线相同, 我们将继续处理下一条曲线.
+否则, 我们使用 \mintinline{csharp}{Intersection.CurveCurve} 方法计算曲线相交的交点, 并将其中一个曲线的参数值加入到参数集合中.
+
+接下来, 我们对参数集合进行排序, 并将当前曲线的起始和结束参数值加入到参数集合中.
+然后, 我们以参数集合中相邻参数值的位置为界, 将当前曲线分割成多个曲线段, 并将这些曲线段作为新的曲线对象加入到曲线结果集合中.
+
+最后, 我们将曲线结果集合添加到树结构中的对应路径中, 完成所有曲线的打断操作.
+最终, 通过输出参数可以获取到完整的打断后的曲线树结构.
+
+我们的曲线打断插件能够有效处理树形结构存储的曲线, 并且能够保留曲线的属性信息.
+这为参数化软件的用户提供了更灵活和便捷的曲线操作方式, 进一步提升了其应用领域的实际价值.
+
+本研究的实现为曲线打断方法在 Rhino 和 Grasshopper 中的应用提供了一种可靠而高效的解决方案.
+通过借鉴和优化现有工具的不足之处, 我们为参数化软件的开发和使用者提供了一种优化的曲线打断功能, 从而进一步推进了参数化设计的应用和发展.

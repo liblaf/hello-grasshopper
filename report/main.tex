@@ -1,0 +1,42 @@
+\documentclass[lang = zh]{iarticle}
+\usepackage{icode}
+\usepackage{tikz}
+
+\tikzset{
+  boximg/.style = {
+      draw,
+      inner sep = 0pt,
+      outer sep = 0pt,
+      red,
+      remember picture,
+      thick,
+    }
+}
+
+\graphicspath{{../assets}}
+
+\course{Construction Technology Practice}
+\title{基于 Grasshopper 的参数化设计方法}
+\ymd{2023}{07}{21}
+
+\begin{document}
+
+\maketitle
+
+\input{src/abstract.tex}
+\pagebreak
+\tableofcontents
+\pagebreak
+\tcblistof[\section*]{listing}{Listings}
+
+\include{src/introduction.tex}
+\include{src/split-curves.tex}
+\include{src/tolerance-merging.tex}
+\include{src/topology-simplification.tex}
+\include{src/conclusion.tex}
+
+\appendix
+
+\include{src/appendix.tex}
+
+\end{document}
