@@ -1,0 +1,101 @@
+\documentclass[lang = zh]{ibeamer}
+\usepackage{icode}
+\usepackage{cprotect}
+
+\author{
+  实习单位: 中国建筑科学研究院 \\
+  指导教师: 李寅斌 \\
+  \thename \quad \theid \quad \theclass \\
+}
+\logo{\includegraphics[height = 0.1 \linewidth]{Tsinghua_University_Logo.png}}
+\title{施工实习答辩}
+\ymd{2023}{09}{21}
+
+\begin{document}
+
+\frame{\titlepage}
+
+\begin{frame}{Contents}
+  \tableofcontents
+\end{frame}
+
+\section{容差合并}
+
+\begin{frame}{容差合并}
+  距离小于容差 $t$ 的点视为同一点, 将其合并为一个点.
+  \begin{description}
+    \item[输入]
+      \begin{itemize}
+        \item 待合并点集 $\Bqty{P_1, \dots, P_n}$
+        \item 容差 $t$
+      \end{itemize}
+    \item[输出]
+      \begin{itemize}
+        \item 合并后的点集 $\Bqty{Q_1, \dots, Q_m}$
+      \end{itemize}
+  \end{description}
+\end{frame}
+
+\subsection{朴素算法}
+
+\begin{frame}{朴素算法}
+  \begin{columns}
+    \begin{column}{0.7 \linewidth}
+      \resizebox{\linewidth}{!}{
+        \begin{minipage}{1.4 \linewidth}
+          \inputcode[
+            label          = lst:remove-duplicate-points-naive,
+            minted options = {
+                firstline = 19,
+              },
+          ][remove\_duplicate\_points\_naive.py]{python}{../python/remove_duplicate_points_naive.py}
+        \end{minipage}
+      }
+    \end{column}
+    \begin{column}{0.3 \linewidth}
+      \begin{description}
+        \item[复杂度] $\Theta(n^2)$
+      \end{description}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\subsection{近邻搜索}
+
+\begin{frame}{近邻搜索}
+  \resizebox{\linewidth}{!}{
+    \begin{minipage}{4 \linewidth}
+      \inputcode[
+        label          = lst:remove-duplicate-points-csharp,
+        minted options = {
+            firstline = 49,
+            lastline  = 88,
+          },
+      ][RemoveDuplicatePoints.cs]{csharp}{../csharp/HelloGrasshopper/RemoveDuplicatePoints.cs}
+    \end{minipage}
+  }
+\end{frame}
+
+\begin{frame}{近邻搜索}
+  \begin{enumerate}
+    \item 创建一个空的 \codeinline{csharp}|HashSet|, 用于存储最终的结果.
+    \item 将点集中的所有点添加到 \codeinline{csharp}|HashSet| 中.
+    \item 遍历点集中的每个点, 如果该点已经被从 \codeinline{csharp}|HashSet| 中移除, 则跳过该点; 否则, 执行以下操作:
+          \begin{enumerate}
+            \item 使用 \codeinline{csharp}|Node3d| 的 \codeinline{csharp}|NearestItems| 方法, 查找距离该点在容差范围内的最近的两个点 (包括该点本身).
+            \item 如果只找到一个点 (即该点本身), 则说明该点没有重复点, 继续下一个点的遍历.
+            \item 如果找到两个或更多的点, 则说明该点有重复点, 取第二个最近的点作为重复点, 并从 \codeinline{csharp}|HashSet| 和空间划分树中移除该重复点.
+                  然后重复这一步骤, 直到找不到更多的重复点为止.
+          \end{enumerate}
+    \item 将 \codeinline{csharp}|HashSet| 中剩余的点作为输出返回.
+  \end{enumerate}
+\end{frame}
+
+\subsection{k-d Tree}
+
+\begin{frame}{k-d Tree}
+\end{frame}
+
+\section{模型清洗}
+
+\end{document}
